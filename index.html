@@ -1,0 +1,545 @@
+<title>Cantina de Campaña</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Big+Shoulders+Stencil:wght@700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --canvas:#ddd5b8;
+    --canvas-panel:#cfc6a2;
+    --canvas-panel-2:#c3b98f;
+    --ink:#201d13;
+    --ink-soft:#5a5540;
+    --line:#8a8163;
+    --line-strong:#5c5640;
+    --accent:#ff5f1f;
+    --accent-ink:#1b1206;
+    --warn-amber:#9c6a1f;
+    --warn-amber-bg:#f0dfb0;
+    --warn-red:#a3312a;
+    --warn-red-bg:#f0c6bf;
+    --shadow:rgba(32,29,19,.25);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --canvas:#161a12;
+      --canvas-panel:#232819;
+      --canvas-panel-2:#2b311f;
+      --ink:#e9e4d0;
+      --ink-soft:#b3ac8c;
+      --line:#4a5138;
+      --line-strong:#6b7350;
+      --accent:#ff7a3d;
+      --accent-ink:#1b1206;
+      --warn-amber:#e2b361;
+      --warn-amber-bg:#3d321a;
+      --warn-red:#e2716a;
+      --warn-red-bg:#3d211d;
+      --shadow:rgba(0,0,0,.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    --canvas:#161a12;
+    --canvas-panel:#232819;
+    --canvas-panel-2:#2b311f;
+    --ink:#e9e4d0;
+    --ink-soft:#b3ac8c;
+    --line:#4a5138;
+    --line-strong:#6b7350;
+    --accent:#ff7a3d;
+    --accent-ink:#1b1206;
+    --warn-amber:#e2b361;
+    --warn-amber-bg:#3d321a;
+    --warn-red:#e2716a;
+    --warn-red-bg:#3d211d;
+    --shadow:rgba(0,0,0,.55);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--canvas);
+    color:var(--ink);
+    font-family:'Archivo',Arial,Helvetica,sans-serif;
+    line-height:1.55;
+  }
+  h1,h2{
+    font-family:'Big Shoulders Stencil','Arial Narrow',sans-serif;
+    text-transform:uppercase;
+    text-wrap:balance;
+    margin:0;
+  }
+  .mono{font-family:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;}
+  .tabular{font-variant-numeric:tabular-nums;}
+
+  .sheet{
+    max-width:880px;
+    margin:0 auto;
+    padding:2rem 1.25rem 3rem;
+  }
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:3px double var(--line-strong);
+    padding-bottom:1rem;
+    margin-bottom:1.75rem;
+  }
+  .masthead-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:1rem 1.5rem;
+  }
+  .brand{display:flex; align-items:center; gap:.65rem;}
+  .brand svg{flex:none; color:var(--accent);}
+  .brand h1{font-size:clamp(1.7rem,5vw,2.5rem); letter-spacing:.03em;}
+  .manifest-meta{display:flex; gap:1.5rem; margin:0;}
+  .manifest-meta > div{display:flex; flex-direction:column; gap:.15rem;}
+  .manifest-meta dt{
+    font-size:.65rem; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--ink-soft); font-weight:600;
+  }
+  .manifest-meta dd{margin:0; font-size:.85rem;}
+  .tagline{margin:.85rem 0 0; max-width:60ch; color:var(--ink-soft); font-size:.95rem;}
+
+  /* ---------- gauges ---------- */
+  .gauges{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:1.25rem;
+    margin-bottom:2.25rem;
+  }
+  .gauge-card{
+    border:1.5px solid var(--line);
+    border-radius:2px;
+    padding:1.1rem 1.2rem 1.3rem;
+    background:var(--canvas-panel);
+  }
+  .gauge-head{
+    display:flex;
+    align-items:center;
+    gap:.7rem;
+    margin-bottom:.85rem;
+  }
+  .gauge-head svg{flex:none; color:var(--ink);}
+  .gauge-head h2{font-size:1.05rem; letter-spacing:.03em;}
+  .gauge-sub{display:block; font-size:.72rem; color:var(--ink-soft); margin-top:.1rem;}
+  .gauge-pct{
+    margin-left:auto;
+    font-family:'Big Shoulders Stencil',sans-serif;
+    font-weight:900;
+    font-size:1.9rem;
+    line-height:1;
+  }
+
+  .gauge-bar{
+    position:relative;
+    height:16px;
+    border:1.5px solid var(--line-strong);
+    border-radius:2px;
+    background:var(--canvas-panel-2);
+    overflow:hidden;
+    margin-bottom:.35rem;
+  }
+  .gauge-fill{
+    height:100%;
+    width:100%;
+    background:var(--accent);
+    transition:width .4s linear, background-color .3s ease;
+  }
+  .gauge-ticks{
+    display:flex;
+    justify-content:space-between;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.62rem;
+    color:var(--ink-soft);
+    opacity:.7;
+    margin-bottom:.9rem;
+  }
+
+  .gauge-foot{
+    display:flex;
+    align-items:center;
+    gap:.7rem;
+    flex-wrap:wrap;
+  }
+  .status-badge{
+    font-size:.68rem;
+    font-weight:700;
+    letter-spacing:.03em;
+    padding:.2rem .5rem;
+    border-radius:2px;
+  }
+  .status-badge.amber{background:var(--warn-amber-bg); color:var(--warn-amber);}
+  .status-badge.red{background:var(--warn-red-bg); color:var(--warn-red);}
+
+  .field-inline{
+    display:flex;
+    align-items:center;
+    gap:.4rem;
+    font-size:.72rem;
+    color:var(--ink-soft);
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+  select{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.78rem;
+    padding:.3rem .45rem;
+    background:var(--canvas);
+    border:1.5px solid var(--line);
+    border-radius:2px;
+    color:var(--ink);
+    text-transform:none;
+    letter-spacing:normal;
+  }
+  select:focus-visible, button:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+  }
+
+  button{
+    font-family:'Archivo',sans-serif;
+    cursor:pointer;
+    border-radius:2px;
+  }
+  .btn-refill{
+    margin-left:auto;
+    background:var(--accent);
+    color:var(--accent-ink);
+    border:1.5px solid var(--accent);
+    font-weight:700;
+    letter-spacing:.04em;
+    font-size:.8rem;
+    padding:.55rem 1rem;
+    transition:filter .15s ease, transform .1s ease;
+  }
+  .btn-refill:hover{filter:brightness(1.08);}
+  .btn-refill:active{transform:translateY(1px);}
+
+  /* ---------- ledger ---------- */
+  .section-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    flex-wrap:wrap;
+    gap:.3rem 1rem;
+    border-bottom:1.5px solid var(--line);
+    padding-bottom:.4rem;
+    margin-bottom:.9rem;
+  }
+  .section-head h2{font-size:1.15rem; letter-spacing:.03em;}
+  .section-note{font-size:.75rem; color:var(--ink-soft);}
+  .ledger-section{margin-bottom:2.25rem;}
+
+  .table-scroll{overflow-x:auto;}
+  table{width:100%; border-collapse:collapse; font-size:.85rem;}
+  thead th{
+    text-align:left;
+    font-size:.68rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    font-weight:600;
+    padding:.4rem .5rem;
+    border-bottom:1.5px solid var(--line);
+    white-space:nowrap;
+  }
+  tbody td{
+    padding:.5rem;
+    border-bottom:1px solid var(--line);
+    vertical-align:middle;
+  }
+  .example-row{opacity:.6; font-style:italic;}
+
+  .fine-print{
+    margin-top:2rem;
+    padding-top:1rem;
+    border-top:1px solid var(--line);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.72rem;
+    color:var(--ink-soft);
+    max-width:65ch;
+  }
+</style>
+
+<div class="sheet">
+
+  <header class="masthead">
+    <div class="masthead-row">
+      <div class="brand">
+        <svg width="32" height="32" viewBox="0 0 40 40" aria-hidden="true">
+          <rect x="10" y="14" width="20" height="22" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
+          <rect x="15" y="6" width="10" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <h1>Cantina de Campaña</h1>
+      </div>
+      <dl class="manifest-meta">
+        <div><dt>Base</dt><dd class="mono">Punta Indio · 35°22'S 57°17'O</dd></div>
+        <div><dt>Turno N.º</dt><dd class="mono" id="turnoNo">—</dd></div>
+      </dl>
+    </div>
+    <p class="tagline">Dos medidores que se vacían solos con el tiempo. Tomá agua y comé una ración antes de que lleguen a cero.</p>
+  </header>
+
+  <section class="gauges" aria-label="Medidores de cantina">
+    <article class="gauge-card" data-resource="agua">
+      <div class="gauge-head">
+        <svg width="26" height="26" viewBox="0 0 40 40" aria-hidden="true">
+          <rect x="10" y="14" width="20" height="22" rx="3" fill="none" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="15" y="6" width="10" height="8" rx="2" fill="none" stroke="var(--ink)" stroke-width="2"/>
+        </svg>
+        <div>
+          <h2>Agua</h2>
+          <span class="gauge-sub" id="aguaSub">—</span>
+        </div>
+        <span class="gauge-pct tabular" id="aguaPct">100%</span>
+      </div>
+      <div class="gauge-bar"><div class="gauge-fill" id="aguaFill"></div></div>
+      <div class="gauge-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+      <div class="gauge-foot">
+        <span class="status-badge" id="aguaBadge" hidden></span>
+        <label class="field-inline">Se agota en
+          <select id="aguaDuration">
+            <option value="1800000">30 min</option>
+            <option value="3600000" selected>1 hora</option>
+            <option value="7200000">2 horas</option>
+          </select>
+        </label>
+        <button class="btn-refill" data-resource="agua">Tomar agua</button>
+      </div>
+    </article>
+
+    <article class="gauge-card" data-resource="raciones">
+      <div class="gauge-head">
+        <svg width="26" height="26" viewBox="0 0 40 40" aria-hidden="true">
+          <rect x="6" y="10" width="28" height="20" rx="2" fill="none" stroke="var(--ink)" stroke-width="2"/>
+          <line x1="6" y1="16" x2="34" y2="16" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="17" y="6" width="6" height="5" rx="1" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
+        </svg>
+        <div>
+          <h2>Raciones</h2>
+          <span class="gauge-sub" id="racionesSub">—</span>
+        </div>
+        <span class="gauge-pct tabular" id="racionesPct">100%</span>
+      </div>
+      <div class="gauge-bar"><div class="gauge-fill" id="racionesFill"></div></div>
+      <div class="gauge-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+      <div class="gauge-foot">
+        <span class="status-badge" id="racionesBadge" hidden></span>
+        <label class="field-inline">Se agota en
+          <select id="racionesDuration">
+            <option value="7200000">2 horas</option>
+            <option value="14400000" selected>4 horas</option>
+            <option value="28800000">8 horas</option>
+          </select>
+        </label>
+        <button class="btn-refill" data-resource="raciones">Comer ración</button>
+      </div>
+    </article>
+  </section>
+
+  <section class="ledger-section">
+    <div class="section-head">
+      <h2>Bitácora de cantina</h2>
+      <span class="section-note" id="ledgerNote">Estas 3 son de ejemplo. Se borran en tu primer registro.</span>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Hora</th><th>Recurso</th><th>Registro</th></tr></thead>
+        <tbody id="ledgerBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="fine-print">
+    Es un recordatorio, no reemplaza comer o tomar agua de verdad. Todo se guarda solo en este navegador.
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STATE_KEY = 'cantina-estado-v1';
+  var LEDGER_KEY = 'cantina-bitacora-v1';
+  var MAX_LEDGER_ROWS = 30;
+
+  var RESOURCES = {
+    agua: {
+      label:'Agua',
+      defaultDuration: 3600000,
+      seedAgoMs: 20 * 60000,
+      verb:'Tomó agua'
+    },
+    raciones: {
+      label:'Raciones',
+      defaultDuration: 14400000,
+      seedAgoMs: 90 * 60000,
+      verb:'Comió una ración'
+    }
+  };
+
+  var EXAMPLE_LEDGER = [
+    {time:'08:15', resource:'Agua', detail:'Cantimplora llena', example:true},
+    {time:'07:40', resource:'Raciones', detail:'Ración consumida', example:true},
+    {time:'06:05', resource:'Agua', detail:'Cantimplora llena', example:true}
+  ];
+
+  var isExampleLedger = true;
+  var state = {};
+  var ledger = [];
+
+  function loadState(){
+    var now = Date.now();
+    try{
+      var raw = localStorage.getItem(STATE_KEY);
+      if(raw){
+        var parsed = JSON.parse(raw);
+        if(parsed && parsed.agua && parsed.raciones) return parsed;
+      }
+    }catch(e){}
+    var seeded = {};
+    Object.keys(RESOURCES).forEach(function(key){
+      seeded[key] = {
+        lastRefill: now - RESOURCES[key].seedAgoMs,
+        duration: RESOURCES[key].defaultDuration
+      };
+    });
+    return seeded;
+  }
+  function saveState(){
+    try{ localStorage.setItem(STATE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+  function loadLedger(){
+    try{
+      var raw = localStorage.getItem(LEDGER_KEY);
+      if(raw){
+        var parsed = JSON.parse(raw);
+        if(Array.isArray(parsed)){ isExampleLedger = false; return parsed; }
+      }
+    }catch(e){}
+    isExampleLedger = true;
+    return EXAMPLE_LEDGER.slice();
+  }
+  function saveLedger(){
+    try{ localStorage.setItem(LEDGER_KEY, JSON.stringify(ledger)); }catch(e){}
+  }
+
+  state = loadState();
+  ledger = loadLedger();
+
+  var ledgerBody = document.getElementById('ledgerBody');
+  var ledgerNote = document.getElementById('ledgerNote');
+
+  function pad2(n){ return String(n).padStart(2,'0'); }
+  function fmtDuration(ms){
+    var totalMin = Math.max(0, Math.round(ms / 60000));
+    var h = Math.floor(totalMin / 60);
+    var m = totalMin % 60;
+    if(h > 0) return h + 'h ' + m + 'm';
+    return m + 'm';
+  }
+  function nowTime(){
+    return new Date().toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'});
+  }
+
+  function renderLedger(){
+    ledgerBody.innerHTML = '';
+    ledger.slice(0, MAX_LEDGER_ROWS).forEach(function(row){
+      var tr = document.createElement('tr');
+      if(row.example) tr.className = 'example-row';
+      var tTd = document.createElement('td'); tTd.className = 'mono'; tTd.textContent = row.time;
+      var rTd = document.createElement('td'); rTd.textContent = row.resource;
+      var dTd = document.createElement('td'); dTd.textContent = row.detail;
+      tr.appendChild(tTd); tr.appendChild(rTd); tr.appendChild(dTd);
+      ledgerBody.appendChild(tr);
+    });
+  }
+
+  function refill(key){
+    var now = Date.now();
+    state[key].lastRefill = now;
+    saveState();
+
+    if(isExampleLedger){
+      ledger = [];
+      isExampleLedger = false;
+      ledgerNote.textContent = 'Guardado en tu navegador.';
+    }
+    ledger.unshift({
+      time: nowTime(),
+      resource: RESOURCES[key].label,
+      detail: 'Nivel restaurado al 100%'
+    });
+    ledger = ledger.slice(0, MAX_LEDGER_ROWS);
+    saveLedger();
+    renderLedger();
+    tick();
+  }
+
+  document.querySelectorAll('.btn-refill').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      refill(btn.getAttribute('data-resource'));
+    });
+  });
+  document.getElementById('aguaDuration').addEventListener('change', function(e){
+    state.agua.duration = parseInt(e.target.value, 10);
+    saveState();
+    tick();
+  });
+  document.getElementById('racionesDuration').addEventListener('change', function(e){
+    state.raciones.duration = parseInt(e.target.value, 10);
+    saveState();
+    tick();
+  });
+  document.getElementById('aguaDuration').value = String(state.agua.duration);
+  document.getElementById('racionesDuration').value = String(state.raciones.duration);
+
+  function updateGauge(key){
+    var s = state[key];
+    var now = Date.now();
+    var elapsed = now - s.lastRefill;
+    var pct = Math.max(0, Math.min(100, 100 * (1 - elapsed / s.duration)));
+    var remaining = Math.max(0, s.duration - elapsed);
+
+    var fill = document.getElementById(key + 'Fill');
+    var pctEl = document.getElementById(key + 'Pct');
+    var subEl = document.getElementById(key + 'Sub');
+    var badge = document.getElementById(key + 'Badge');
+
+    fill.style.width = pct.toFixed(1) + '%';
+    pctEl.textContent = Math.round(pct) + '%';
+
+    if(pct <= 0){
+      subEl.textContent = 'Vacío — reabastecer';
+      fill.style.backgroundColor = 'var(--warn-red)';
+      badge.hidden = false; badge.className = 'status-badge red'; badge.textContent = 'Vacío';
+    }else if(pct <= 40){
+      subEl.textContent = 'Se agota en ' + fmtDuration(remaining);
+      fill.style.backgroundColor = 'var(--warn-amber)';
+      badge.hidden = false; badge.className = 'status-badge amber'; badge.textContent = 'Bajo';
+    }else{
+      subEl.textContent = 'Se agota en ' + fmtDuration(remaining);
+      fill.style.backgroundColor = 'var(--accent)';
+      badge.hidden = true;
+    }
+  }
+
+  function tick(){
+    updateGauge('agua');
+    updateGauge('raciones');
+  }
+
+  (function initTurnoNo(){
+    var now = new Date();
+    var no = 'T-' + now.getFullYear() + pad2(now.getMonth()+1) + pad2(now.getDate()) + '-' + Math.floor(1000 + Math.random()*9000);
+    document.getElementById('turnoNo').textContent = no;
+  })();
+
+  renderLedger();
+  tick();
+  setInterval(tick, 1000);
+})();
+</script>
